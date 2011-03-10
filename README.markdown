@@ -1,4 +1,4 @@
-Manul synchronization framework
+Manul Synchronization Framework
 ===============================
 
 Simple two system (at this moment) synchronization framework.
