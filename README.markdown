@@ -14,8 +14,8 @@ Installation
 
 Core framework package is available over PEAR channel:
 
-    pear channel-discover capall.shockov.com
-    pear install capall/manul
+    $ pear channel-discover capall.shockov.com
+    $ pear install capall/manul
 
 Usage
 -----
