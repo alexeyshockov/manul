@@ -42,7 +42,7 @@ class mnlAssignPacketProcessor
         $aEntity = $aPacket['Entity'];
 
         $iRemoteId  = $aEntity['Id'];
-        $iLocalId   = $this->_oResolver->resolveLocalId($sEntityType, $aEntity['Id']);
+        $iLocalId   = $this->_oResolver->resolveRemoteId($sEntityType, $aEntity['Id']);
 
         $oEntityImporter = $oComponent->getEntityImporter($iLocalId);
 

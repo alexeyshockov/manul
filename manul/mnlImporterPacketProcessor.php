@@ -71,7 +71,7 @@ class mnlImporterPacketProcessor
         $this->_oProfiler->startResolvingLocalId();
 
         $iRemoteId = $aEntity['Id'];
-        $iLocalId  = $this->_oResolver->resolveLocalId($sEntityType, $aEntity['Id']);
+        $iLocalId  = $this->_oResolver->resolveRemoteId($sEntityType, $aEntity['Id']);
 
         $this->_oProfiler->finishResolvingLocalId($iLocalId);
 
@@ -92,9 +92,16 @@ class mnlImporterPacketProcessor
 
         $this->_oProfiler->finishCreatingImporter();
 
-        // Eсли Резольвер указывает на то, что сущность новая ($iLocalId == NULL), можно
-        // не проверять даты на предмет конфликта.
-        if ($iLocalId && !$this->_needImport($oEntityImporter, $aEntity)) {
+        if (
+            // Eсли Резольвер указывает на то, что сущность новая ($iLocalId == NULL), можно
+            // не проверять даты на предмет конфликта.
+            $iLocalId
+            &&
+            // И если даты вообще есть для данной сущности...
+            !empty($aEntity['ModifiedDate'])
+            &&
+            !$this->_needImport($oEntityImporter, $aEntity)
+        ) {
             mnlRegistry::get('logger')->log(
                 'Imported entity ('.date(DATE_ISO8601, $aEntity['ModifiedDate']).') is older then current ('.date(DATE_ISO8601, $oEntityImporter->getEntityLastModifiedDate()).'), do not import.',
                 Zend_Log::WARN,
@@ -176,6 +183,8 @@ class mnlImporterPacketProcessor
     private function _resolveRelations($aEntityManifest, $aEntity) {
         foreach($aEntityManifest as $sAttributeName => $aAttributeManifest) {
             if (
+                !empty($aAttributeManifest['RelatedEntityType'])
+                &&
                 ($sRelatedEntityType = $aAttributeManifest['RelatedEntityType'])
                 &&
                 // Осуществляем преобразование, если только значение
@@ -193,7 +202,7 @@ class mnlImporterPacketProcessor
 
                 $aLocalIds = array();
                 foreach ($aRemoteIds as $iRemoteId) {
-                    $iLocalId = $this->_oResolver->resolveLocalId(
+                    $iLocalId = $this->_oResolver->resolveRemoteId(
                         $sRelatedEntityType, $iRemoteId
                     );
 
