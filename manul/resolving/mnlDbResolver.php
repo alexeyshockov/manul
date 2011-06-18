@@ -48,10 +48,10 @@ class mnlDbResolver
 
     public function resolveRemoteId($sType, $iRemoteId) {
         $iResult = $this->_oConnection->fetchOne(
-            'SELECT '.$this->_aContext['remote_field_name'].'
+            'SELECT '.$this->_aContext['local_field_name'].'
              FROM '.$this->_sTableName.'
              WHERE type = ?
-             AND '.$this->_aContext['local_field_name'].' = ?',
+             AND '.$this->_aContext['remote_field_name'].' = ?',
             array($sType, $iRemoteId)
         );
 
@@ -63,10 +63,10 @@ class mnlDbResolver
         // условием обновление будет, если только до этого соответствия не было.
         $bAlreadyExist = !(bool)$this->_oConnection->update(
             $this->_sTableName,
-            array($this->_aContext['remote_field_name'] => $iLocalId),
+            array($this->_aContext['local_field_name'] => $iLocalId),
             "type = '".$sType."'
-             AND ".$this->_aContext['local_field_name']." = ".$iRemoteId."
-             AND ".$this->_aContext['remote_field_name']." IS NULL"
+             AND ".$this->_aContext['remote_field_name']." = ".$iRemoteId."
+             AND ".$this->_aContext['local_field_name']." IS NULL"
         );
 
         if ($bAlreadyExist) {
@@ -74,7 +74,7 @@ class mnlDbResolver
                 "SELECT COUNT(*) AS cnt
                  FROM ".$this->_sTableName."
                  WHERE type='".$sType."'
-                 AND ".$this->_aContext['local_field_name']." = ".$iRemoteId
+                 AND ".$this->_aContext['remote_field_name']." = ".$iRemoteId
             );
             if (!$bExists) {
                 throw new mnlResolverException('Trying to bind with unknown '.$this->_aContext['local_field_name'].' = '.$iRemoteId.' for '.$sType.'.');
